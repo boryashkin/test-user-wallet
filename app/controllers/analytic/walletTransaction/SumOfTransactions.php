@@ -19,7 +19,8 @@ class SumOfTransactions
             return $response;
         }
         $repo = new WalletTransactionRepository(App::getInstance()->getDbConnection());
-        $response->getBody()->write($repo->findSumOfTransactionsByReason($_GET['reason'], $_GET['target_currency_id']));
+        $sum = $repo->findSumOfTransactionsByReason($_GET['reason'], $_GET['target_currency_id']);
+        $response->getBody()->write($sum ?? "0");
 
         return $response;
     }
