@@ -12,14 +12,14 @@ services:
     volumes:
       - ./app:/app
     command: "install --ignore-platform-reqs"
-  temp-project-worker:
+  temp-project-currency-refresher:
     build: "./docker/php7.3-cli-alpine-mysql"
     env_file:
       - .env
     volumes:
       - ./app:/app
     working_dir: "/app"
-    entrypoint: ["php", "worker.php"]
+    entrypoint: ["php", "cli/services/currency_rates_refresher.php"]
     restart: on-failure
     depends_on:
       - temp-project-composer
@@ -50,7 +50,7 @@ services:
 #      - 33066:3306
     volumes:
       - ./data/db/mysql:/var/lib/mysql
-      - /data/init/mysql:/docker-entrypoint-initdb.d/:ro
+      - ./data/init/mysql:/docker-entrypoint-initdb.d
     networks:
       - temp-project
   temp-project-nginx:
