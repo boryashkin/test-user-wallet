@@ -6,5 +6,5 @@ SELECT
     sum(wt.value * ifnull(rate, 1))
 FROM wallet_transaction wt
     left join latest_currency_rate lcr ON lcr.currency_id = wt.currency_id AND lcr.to_currency_id = :target_currency
-WHERE reason_id = (select id from wallet_transaction_reason WHERE name = :reason_name)
+WHERE reason_id = (select id from wallet_transaction_reason WHERE name = :reason_name) AND wt.created_at >= date_sub(date_format(now(), '%Y-%m-%d 00:00:00'), interval 7 day)
 ;
