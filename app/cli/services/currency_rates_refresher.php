@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use app\models\Currency;
 
 //const URL_CURRENCY_RATES = 'http://www.cbr.ru/scripts/XML_daily.asp';
-const URL_CURRENCY_RATES = __DIR__ . '/XML_daily.asp';
+const URL_CURRENCY_RATES = __DIR__ . '/XML_daily.asp';//for tests
 
 
 $loop = \React\EventLoop\Factory::create();
@@ -31,14 +31,14 @@ $updater = function () use ($db, $crRepo) {
         $value = (float)str_replace(',', '.', $element->Value) / (int)$element->Nominal;
         if (isset($rateDirections[Currency::CODE_RUB . $element->CharCode])) {
             $cr = new \app\models\CurrencyRate();
-            $cr->rate = $value;
+            $cr->rate = 1 / $value;
             $cr->currency_id = $rateDirections[Currency::CODE_RUB . $element->CharCode]['id1'];
             $cr->to_currency_id = $rateDirections[Currency::CODE_RUB . $element->CharCode]['id2'];
             $saved = $saved && $crRepo->createOne($cr);
         }
         if (isset($rateDirections[$element->CharCode . Currency::CODE_RUB])) {
             $cr = new \app\models\CurrencyRate();
-            $cr->rate = 1 / $value;
+            $cr->rate = $value;
             $cr->currency_id = $rateDirections[Currency::CODE_RUB . $element->CharCode]['id2'];
             $cr->to_currency_id = $rateDirections[Currency::CODE_RUB . $element->CharCode]['id1'];
             $saved = $saved && $crRepo->createOne($cr);
@@ -55,6 +55,6 @@ $updater = function () use ($db, $crRepo) {
 };
 $updater();
 
-$loop->addPeriodicTimer(60, $updater);
+$loop->addPeriodicTimer(60 * 10, $updater);
 
 $loop->run();

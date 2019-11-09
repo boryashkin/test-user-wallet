@@ -19,7 +19,8 @@ class Create
     {
         $uRepo = new UserRepository(App::getInstance()->getDbConnection());
         $wRepo = new WalletRepository(App::getInstance()->getDbConnection());
-        if (!isset($_POST['user'], $_POST['wallet']) || !is_array($_POST['user']) || !is_array($_POST['wallet'])) {
+        $post = $request->getParsedBody();
+        if (!isset($post['user'], $post['wallet']) || !is_array($post['user']) || !is_array($post['wallet'])) {
             $response = $response->withStatus(400, 'Bad request');
 
             return $response;
@@ -27,12 +28,12 @@ class Create
 
         $user = new User();
         $wallet = new Wallet();
-        foreach ($_POST['user'] as $key => $value) {
+        foreach ($post['user'] as $key => $value) {
             if (property_exists($user, $key)) {
                 $user->$key = $value;
             }
         }
-        foreach ($_POST['wallet'] as $key => $value) {
+        foreach ($post['wallet'] as $key => $value) {
             if (property_exists($wallet, $key)) {
                 $wallet->$key = $value;
             }

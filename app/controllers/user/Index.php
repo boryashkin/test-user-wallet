@@ -7,6 +7,9 @@ use app\repositories\UserRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * @get
+ */
 class Index extends BasicIndex
 {
     public static $modelRepositoryClass = UserRepository::class;

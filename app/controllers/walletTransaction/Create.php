@@ -20,14 +20,15 @@ class Create
         $wtRepo = new WalletTransactionRepository(App::getInstance()->getDbConnection());
         $wRepo = new WalletRepository(App::getInstance()->getDbConnection());
         $crRepo = new CurrencyRateRepository(App::getInstance()->getDbConnection());
-        if (!isset($_POST['transaction']) || !is_array($_POST['transaction'])) {
+        $post = $request->getParsedBody();
+        if (!isset($post['transaction']) || !is_array($post['transaction'])) {
             $response = $response->withStatus(400, 'Bad request');
 
             return $response;
         }
 
         $walletTransaction = new WalletTransaction();
-        foreach ($_POST['transaction'] as $key => $value) {
+        foreach ($post['transaction'] as $key => $value) {
             if (property_exists($walletTransaction, $key)) {
                 $walletTransaction->$key = $value;
             }

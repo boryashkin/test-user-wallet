@@ -5,7 +5,7 @@ use app\models\WalletTransaction;
 
 class WalletTransactionRepository extends MysqlRepository
 {
-    public static $modelClass = WalletTransactionRepository::class;
+    public static $modelClass = WalletTransaction::class;
     public static $table = 'wallet_transaction';
 
     public function createOne(
@@ -15,13 +15,12 @@ class WalletTransactionRepository extends MysqlRepository
     )
     {
         $this->getConnection()->beginTransaction();
-        $applied = false;
         try {
             $wallet = $wRepository->findOneForUpdate($walletTransaction->wallet_id);
-            $cRate = $crRepository->findLatestRateForCurrency($wallet->currency_id, $walletTransaction->currency_id);
+            $cRate = $crRepository->findLatestRateForCurrency($walletTransaction->currency_id, $wallet->currency_id);
             $walletTransaction->currency_rate_id = $cRate->id;
             $this->insertOne($walletTransaction);
-            $applied = $wRepository->applyTransaction($wallet, $walletTransaction, $crRepository);
+            $applied = $wRepository->applyTransaction($wallet, $walletTransaction, $cRate ?: null);
         } catch (\PDOException $e) {
             $this->getConnection()->rollBack();
             throw $e;
@@ -34,6 +33,19 @@ class WalletTransactionRepository extends MysqlRepository
         }
 
         return $applied;
+    }
+
+    public function findSumOfTransactionsByReason($reason, $targetCurrencyId)
+    {
+        $stmt = $this->getConnection()->prepare(file_get_contents(__DIR__ . '/sql/refundSumForWeek.sql'));
+        $stmt->bindValue(':reason_name', $reason);
+        $stmt->bindValue(':target_currency', $targetCurrencyId);
+        $ex = $stmt->execute();
+        if (!$ex) {
+            error_log(print_r($stmt->errorInfo(), true));
+        }
+
+        return $ex ? $stmt->fetchColumn(0) : 0;
     }
 
     private function insertOne(WalletTransaction $walletTransaction)

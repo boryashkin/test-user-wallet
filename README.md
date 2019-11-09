@@ -1,15 +1,24 @@
-# LAMP docker-compose app template
+# Test wallet app
 
-* Nginx
-* PHP-FPM
-* cli PHP
-* MySQL
+### Run the app
 
-### Steps
-
-* create .env by copying .env.dist and replacing some values
-    * `cp .env.dist .env`
-* add some .sql's to /data/init/mysql/ to make mysql initializations while it starting
-* `docker-compose up` to warm a setup up
+* create .env by copying .env.dist and replacing some values (will also work with .env.dist values)
+    * `cp .env.dist .env`  
+* start the app as `docker-compose -d`
 * test if web-app works: http://localhost:9882/
-*if so, restart the project as `docker-compose -d` if needed
+
+### Api doc
+
+* `GET /currencies` Currencies list
+* `GET /users` Users list with wallet balance
+* `POST /users` Create a user 
+    * using `Content-Type: application/json`, send data as `{"wallet": {"value": 0, "currency_id": 1}, "user": {"login": "test31"}}`
+    * or as usual post data (wallet[value]=0&wallet[currency_id]=1&user[login]=test1)
+* `GET /wallets/{id}` Wallet info
+* `POST /wallet-transactions`
+    * `{"transaction": {"reason_id": 2, "value": -1, "currency_id": 1, "wallet_id": 1}}`
+    * use negative value, if you need to withdraw money
+* `GET /wallet-transaction-reasons`
+    * dictionary of reasons
+* `GET /analytic/wallet-transaction/sum-of-transactions`
+    * get-parameters: `reason=refund&target_currency_id=1`

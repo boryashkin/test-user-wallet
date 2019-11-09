@@ -17,6 +17,8 @@ $app->get('/users', \app\controllers\user\Index::class);
 $app->post('/users', \app\controllers\user\Create::class);
 $app->get('/wallets/{id}', \app\controllers\wallet\View::class);
 $app->post('/wallet-transactions', \app\controllers\walletTransaction\Create::class);
+$app->get('/wallet-transaction-reasons', \app\controllers\walletTransactionReason\Index::class);
+$app->get('/analytic/wallet-transaction/sum-of-transactions', \app\controllers\analytic\walletTransaction\SumOfTransactions::class);
 $app->addMiddleware(new \app\middlewares\HeaderJsonMiddleware());
 
 $app->run();

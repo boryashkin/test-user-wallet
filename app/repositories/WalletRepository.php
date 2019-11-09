@@ -1,6 +1,7 @@
 <?php
 namespace app\repositories;
 
+use app\models\CurrencyRate;
 use app\models\Wallet;
 use app\models\WalletTransaction;
 
@@ -32,17 +33,13 @@ class WalletRepository extends MysqlRepository
         return $stmt->execute();
     }
 
-    public function applyTransaction(Wallet $wallet, WalletTransaction $walletTransaction, CurrencyRateRepository $crRepository)
+    public function applyTransaction(Wallet $wallet, WalletTransaction $walletTransaction, CurrencyRate $rate = null)
     {
-        $rate = 1;
-        if ($wallet->currency_id !== $walletTransaction->currency_id) {
-            $cRate = $crRepository->findLatestRateForCurrency($wallet->currency_id, $walletTransaction->currency_id);
-            if (!$cRate) {
-                throw new \PDOException('Currency rate not found: ' . $wallet->currency_id . ' -> ' . $walletTransaction->currency_id);
-            }
-            $rate = $cRate->rate;
+        $rateValue = 1;
+        if ($rate) {
+            $rateValue = $rate->rate;
         }
-        $wallet->value += $walletTransaction->value * $rate;
+        $wallet->value += $walletTransaction->value * $rateValue;
 
         return $this->updateOne($wallet);
     }
